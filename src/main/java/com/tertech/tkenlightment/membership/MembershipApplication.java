@@ -2,12 +2,13 @@ package com.tertech.tkenlightment.membership;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class MembershipApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MembershipApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(MembershipApplication.class, args);
+    }
 }

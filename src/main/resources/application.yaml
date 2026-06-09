@@ -1,3 +1,17 @@
 spring:
   application:
     name: membership
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  modulith:
+    events:
+      jdbc-schema-initialization:
+        enabled: true

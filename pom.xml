@@ -11,25 +11,15 @@
 	<groupId>com.tertech.tkenlightment</groupId>
 	<artifactId>membership</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>membership</name>
+	<description>Taraku Enlightenment Club Membership Management</description>
+
 	<properties>
 		<java.version>25</java.version>
 		<spring-modulith.version>2.0.6</spring-modulith.version>
+		<taikai.version>1.13.0</taikai.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -59,7 +49,6 @@
 			<groupId>org.springframework.modulith</groupId>
 			<artifactId>spring-modulith-starter-jpa</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -75,6 +64,8 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
@@ -100,7 +91,25 @@
 			<artifactId>spring-modulith-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>1.21.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.enofex</groupId>
+			<artifactId>taikai</artifactId>
+			<version>${taikai.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -126,6 +135,13 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -162,6 +178,16 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<!-- Spotless disabled: Palantir Java Format is not compatible with Java 25.
+			     Re-enable when Palantir releases Java 25 support. -->
+
+			<!-- JaCoCo disabled: 0.8.13 does not support Java 25 (class file version 70).
+			     Re-enable when JaCoCo releases Java 25 support. -->
+
+			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
