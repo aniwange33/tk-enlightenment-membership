@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/aniwange/dev/spring-craft/src/test -type f -name *.java)",
+      "Bash(ls -la /Users/aniwange/dev/spring-craft/*.sh)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(curl -s https://raw.githubusercontent.com/sivaprasadreddy/sivalabs-agent-skills/main/skills/jspecify/SKILL.md)",
+      "Bash(curl -s https://raw.githubusercontent.com/sivaprasadreddy/sivalabs-agent-skills/main/skills/jspecify/scripts/verify_nullmarked.py)",
+      "Bash(curl -s https://raw.githubusercontent.com/jvm-skills/jvm-skills/main/.claude/skills/tdd-task/SKILL.md)",
+      "Bash(curl -s https://raw.githubusercontent.com/piomin/claude-ai-spring-boot/main/.claude/skills/jpa-patterns/SKILL.md)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /Users/aniwange/dev/spring-craft/.claude/skills/jpa-patterns)",
+      "Bash(cp /tmp/jpa-patterns-SKILL.md /Users/aniwange/dev/spring-craft/.claude/skills/jpa-patterns/SKILL.md)",
+      "Bash(mkdir -p /Users/aniwange/dev/spring-craft/.claude/skills/design-postgres-tables)",
+      "Bash(cp /tmp/design-postgres-tables-SKILL.md /Users/aniwange/dev/spring-craft/.claude/skills/design-postgres-tables/SKILL.md)",
+      "Bash(mkdir -p /Users/aniwange/dev/spring-craft/.claude/skills/code-quality)",
+      "Bash(cp /tmp/code-quality-SKILL.md /Users/aniwange/dev/spring-craft/.claude/skills/code-quality/SKILL.md)",
+      "Bash(mkdir -p /Users/aniwange/dev/spring-craft/.claude/skills/design-patterns)",
+      "Bash(cp /tmp/design-patterns-SKILL.md /Users/aniwange/dev/spring-craft/.claude/skills/design-patterns/SKILL.md)",
+      "Bash(mkdir -p /Users/aniwange/dev/spring-craft/.claude/skills/spring-boot/references)",
+      "Bash(__NEW_LINE_4ba17e9016bff560__ BASE=\"https://raw.githubusercontent.com/sivaprasadreddy/sivalabs-agent-skills/main/skills/spring-boot\")",
+      "Bash(DEST=\"/Users/aniwange/dev/spring-craft/.claude/skills/spring-boot\")",
+      "Bash(__NEW_LINE_4ba17e9016bff560__ curl:*)",
+      "Bash(__NEW_LINE_4ba17e9016bff560__ for:*)"
+    ]
+  }
+}
