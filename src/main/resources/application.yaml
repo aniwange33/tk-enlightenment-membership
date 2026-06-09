@@ -13,5 +13,8 @@ spring:
     enabled: true
   modulith:
     events:
-      jdbc-schema-initialization:
-        enabled: true
+      jdbc:
+        schema-initialization:
+          enabled: true
+      completion-mode: update
+      republish-outstanding-events-on-restart: true
