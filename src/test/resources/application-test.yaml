@@ -5,3 +5,6 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  mail:
+    host: localhost
+    port: 1025

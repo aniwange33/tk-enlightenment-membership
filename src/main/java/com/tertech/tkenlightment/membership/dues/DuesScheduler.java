@@ -20,6 +20,13 @@ class DuesScheduler {
         this.clock = clock;
     }
 
+    @Scheduled(cron = "0 0 0 1 4 *")
+    void sendDuesReminders() {
+        int year = LocalDate.now(clock).getYear();
+        log.info("Running scheduled dues reminders for year {}", year);
+        duesService.sendDuesReminders(year);
+    }
+
     @Scheduled(cron = "0 0 0 1 5 *")
     void inactivateUnpaidMembers() {
         int year = LocalDate.now(clock).getYear();
