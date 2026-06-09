@@ -1,4 +1,17 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+  api-docs:
+    path: /v3/api-docs
+  info:
+    title: Taraku Enlightenment Club Membership API
+    description: Membership management for the Taraku Enlightenment Club
+    version: 0.0.1
+
 spring:
+  profiles:
+    active: postgres
   application:
     name: membership
   jpa:
