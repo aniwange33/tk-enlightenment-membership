@@ -20,14 +20,21 @@ class DuesScheduler {
         this.clock = clock;
     }
 
-    @Scheduled(cron = "0 0 0 1 4 *")
+    @Scheduled(cron = "0 0 0 1 1 *", zone = "UTC")
+    void generateDuesForNewYear() {
+        int year = LocalDate.now(clock).getYear();
+        log.info("Running scheduled dues generation for year {}", year);
+        duesService.generateDuesForYear(year);
+    }
+
+    @Scheduled(cron = "0 0 0 1 4 *", zone = "UTC")
     void sendDuesReminders() {
         int year = LocalDate.now(clock).getYear();
         log.info("Running scheduled dues reminders for year {}", year);
         duesService.sendDuesReminders(year);
     }
 
-    @Scheduled(cron = "0 0 0 1 5 *")
+    @Scheduled(cron = "0 0 0 1 5 *", zone = "UTC")
     void inactivateUnpaidMembers() {
         int year = LocalDate.now(clock).getYear();
         log.info("Running scheduled dues inactivation for year {}", year);
