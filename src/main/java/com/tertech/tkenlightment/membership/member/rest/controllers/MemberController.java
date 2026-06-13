@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +29,7 @@ class MemberController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<MemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
         var cmd = new RegisterMemberCmd(
                 request.firstName(),
@@ -45,6 +47,7 @@ class MemberController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     Page<MemberResponse> list(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) MemberStatus status,
@@ -53,11 +56,13 @@ class MemberController {
     }
 
     @GetMapping("/{memberId}")
+    @PreAuthorize("hasRole('ADMIN') or @authz.canAccessMember(#memberId)")
     MemberResponse getById(@PathVariable String memberId) {
         return MemberResponse.from(memberAPI.getMember(memberId));
     }
 
     @PatchMapping("/{memberId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     MemberResponse changeStatus(
             @PathVariable String memberId, @Valid @RequestBody ChangeStatusRequest request) {
         var cmd = new ChangeStatusCmd(memberId, request.status());
@@ -65,6 +70,7 @@ class MemberController {
     }
 
     @PutMapping("/{memberId}/profile")
+    @PreAuthorize("hasRole('ADMIN') or @authz.canAccessMember(#memberId)")
     MemberResponse updateProfile(
             @PathVariable String memberId, @RequestBody UpdateMemberProfileRequest request) {
         var cmd = new UpdateMemberProfileCmd(memberId, request.phone(), request.address());

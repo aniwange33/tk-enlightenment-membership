@@ -7,6 +7,9 @@ import java.net.URI;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -48,6 +51,33 @@ public class GlobalExceptionHandler {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .toList();
         problem.setProperty("errors", errors);
+        return problem;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    ProblemDetail handleBadCredentials(BadCredentialsException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        problem.setType(URI.create("about:blank"));
+        problem.setTitle("Unauthorized");
+        return problem;
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    ProblemDetail handleDisabled(DisabledException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Account is disabled");
+        problem.setType(URI.create("about:blank"));
+        problem.setTitle("Forbidden");
+        return problem;
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    ProblemDetail handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
+        problem.setType(URI.create("about:blank"));
+        problem.setTitle("Forbidden");
         return problem;
     }
 

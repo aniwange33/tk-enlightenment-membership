@@ -1,33 +1,53 @@
 package com.tertech.tkenlightment.membership.notification;
 
-import com.tertech.tkenlightment.membership.member.domain.events.MemberRegisteredEvent;
+import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
 import com.tertech.tkenlightment.membership.member.domain.events.MemberStatusChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 
 @Component
 class MemberEventNotificationListener {
 
-    private static final Logger log = LoggerFactory.getLogger(MemberEventNotificationListener.class);
+    private final EmailService emailService;
+
+    MemberEventNotificationListener(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     @ApplicationModuleListener
-    void onMemberRegistered(MemberRegisteredEvent event) {
-        log.info(
-                "[EMAIL STUB] Welcome email to {} ({}) — membership number: {}",
-                event.fullName(),
+    void onAccountCreated(AccountCreatedEvent event) {
+        emailService.send(
                 event.email(),
-                event.membershipNumber());
+                "Welcome to Taraku Enlightenment Club — " + event.membershipNumber(),
+                """
+                Dear %s,
+
+                Welcome to the Taraku Enlightenment Club! Your membership has been registered.
+
+                Membership Number: %s
+                Temporary Password: %s
+
+                Please log in and change your password on first login.
+
+                Regards,
+                Taraku Enlightenment Club
+                """.formatted(event.fullName(), event.membershipNumber(), event.tempPassword()));
     }
 
     @ApplicationModuleListener
     void onMemberStatusChanged(MemberStatusChangedEvent event) {
-        log.info(
-                "[EMAIL STUB] Status change email to {} ({}) — {} → {}",
-                event.fullName(),
+        emailService.send(
                 event.email(),
-                event.oldStatus(),
-                event.newStatus());
+                "Your membership status has changed",
+                """
+                Dear %s,
+
+                Your membership status has been updated to: %s
+
+                If you have questions, please contact the club administration.
+
+                Regards,
+                Taraku Enlightenment Club
+                """.formatted(event.fullName(), event.newStatus()));
     }
 }

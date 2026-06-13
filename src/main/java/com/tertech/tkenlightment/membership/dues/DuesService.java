@@ -1,6 +1,7 @@
 package com.tertech.tkenlightment.membership.dues;
 
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesPaidEvent;
+import com.tertech.tkenlightment.membership.dues.domain.events.DuesReminderEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.MemberAutoInactivatedEvent;
 import com.tertech.tkenlightment.membership.member.MemberAPI;
 import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
@@ -72,6 +73,26 @@ class DuesService {
     @Transactional(readOnly = true)
     List<DuesRecordEntity> getDuesHistory(String memberId) {
         return duesRepository.findByMemberIdOrderByYearDesc(memberId);
+    }
+
+    void sendDuesReminders(int year) {
+        List<DuesRecordEntity> unpaidRecords = duesRepository.findUnpaidForYear(year);
+        log.info("Sending dues reminders for year {} to {} unpaid members", year, unpaidRecords.size());
+
+        for (DuesRecordEntity record : unpaidRecords) {
+            try {
+                MemberResult member = memberAPI.getMember(record.getMemberId());
+                if (member.status() == MemberStatus.ACTIVE) {
+                    eventPublisher.publish(new DuesReminderEvent(
+                            record.getMemberId(),
+                            member.email(),
+                            member.firstName() + " " + member.lastName(),
+                            year));
+                }
+            } catch (Exception e) {
+                log.error("Failed to send dues reminder to member {} for year {}", record.getMemberId(), year, e);
+            }
+        }
     }
 
     void inactivateUnpaidMembers(int year) {

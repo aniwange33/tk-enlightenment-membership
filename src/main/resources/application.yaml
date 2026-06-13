@@ -1,4 +1,37 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+  api-docs:
+    path: /v3/api-docs
+
+notification:
+  from: ${NOTIFICATION_FROM:noreply@taraku-enlightenment.org}
+
+auth:
+  jwt:
+    secret: ${AUTH_JWT_SECRET}
+    ttl: ${AUTH_JWT_TTL:PT8H}
+  admin:
+    email: ${AUTH_ADMIN_EMAIL:}
+    password: ${AUTH_ADMIN_PASSWORD:}
+
 spring:
+  config:
+    import: optional:file:.env[.properties]
+  profiles:
+    active: postgres
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   application:
     name: membership
   jpa:

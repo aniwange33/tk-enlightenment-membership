@@ -5,3 +5,14 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  mail:
+    host: localhost
+    port: 1025
+
+auth:
+  jwt:
+    secret: test-secret-key-that-is-definitely-long-enough-for-hs256-signing
+    ttl: PT8H
+  admin:
+    email: admin@taraku-enlightenment.org
+    password: AdminTest!2026
