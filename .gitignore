@@ -33,3 +33,7 @@ build/
 .vscode/
 .github
 .claude
+
+### Environment ###
+.env
+!.env.example
