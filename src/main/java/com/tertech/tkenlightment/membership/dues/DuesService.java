@@ -47,6 +47,19 @@ class DuesService {
         duesRepository.save(DuesRecordEntity.create(memberId, year));
     }
 
+    /**
+     * Creates an unpaid dues record for the given year for every ACTIVE member that does not already
+     * have one. Idempotent (safe to re-run) — without this, the April/May jobs only ever see members
+     * registered in the current year.
+     */
+    void generateDuesForYear(int year) {
+        List<MemberResult> activeMembers = memberAPI.findActiveMembers();
+        log.info("Generating dues records for {} active members for year {}", activeMembers.size(), year);
+        for (MemberResult member : activeMembers) {
+            createDuesRecord(member.id(), year);
+        }
+    }
+
     DuesRecordEntity markPaid(String memberId, int year) {
         DuesRecordEntity record = duesRepository
                 .findByMemberIdAndYear(memberId, year)
@@ -57,10 +70,14 @@ class DuesService {
             throw new DomainException("Dues for year " + year + " are already paid");
         }
 
+        MemberResult member = memberAPI.getMember(memberId);
+        if (member.status() == MemberStatus.TERMINATED) {
+            throw new DomainException("Cannot record dues for a terminated member");
+        }
+
         record.markPaid(LocalDate.now(clock));
         record = duesRepository.save(record);
 
-        MemberResult member = memberAPI.getMember(memberId);
         if (member.status() == MemberStatus.INACTIVE) {
             memberAPI.activateMember(memberId);
         }

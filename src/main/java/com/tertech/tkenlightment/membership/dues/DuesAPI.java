@@ -28,6 +28,10 @@ public class DuesAPI {
         duesService.createDuesRecord(memberId, year);
     }
 
+    public void generateDuesForYear(int year) {
+        duesService.generateDuesForYear(year);
+    }
+
     public void inactivateUnpaidMembers(int year) {
         duesService.inactivateUnpaidMembers(year);
     }
