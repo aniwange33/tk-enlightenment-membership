@@ -12,6 +12,14 @@ springdoc:
 notification:
   from: ${NOTIFICATION_FROM:noreply@taraku-enlightenment.org}
 
+auth:
+  jwt:
+    secret: ${AUTH_JWT_SECRET}
+    ttl: ${AUTH_JWT_TTL:PT8H}
+  admin:
+    email: ${AUTH_ADMIN_EMAIL:}
+    password: ${AUTH_ADMIN_PASSWORD:}
+
 spring:
   config:
     import: optional:file:.env[.properties]

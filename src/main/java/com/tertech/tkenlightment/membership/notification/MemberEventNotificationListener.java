@@ -1,8 +1,7 @@
 package com.tertech.tkenlightment.membership.notification;
 
-import com.tertech.tkenlightment.membership.member.domain.events.MemberRegisteredEvent;
+import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
 import com.tertech.tkenlightment.membership.member.domain.events.MemberStatusChangedEvent;
-import java.util.random.RandomGenerator;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,7 @@ class MemberEventNotificationListener {
     }
 
     @ApplicationModuleListener
-    void onMemberRegistered(MemberRegisteredEvent event) {
-        String tempPassword = generateTempPassword();
+    void onAccountCreated(AccountCreatedEvent event) {
         emailService.send(
                 event.email(),
                 "Welcome to Taraku Enlightenment Club — " + event.membershipNumber(),
@@ -33,7 +31,7 @@ class MemberEventNotificationListener {
 
                 Regards,
                 Taraku Enlightenment Club
-                """.formatted(event.fullName(), event.membershipNumber(), tempPassword));
+                """.formatted(event.fullName(), event.membershipNumber(), event.tempPassword()));
     }
 
     @ApplicationModuleListener
@@ -51,15 +49,5 @@ class MemberEventNotificationListener {
                 Regards,
                 Taraku Enlightenment Club
                 """.formatted(event.fullName(), event.newStatus()));
-    }
-
-    private String generateTempPassword() {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        RandomGenerator rng = RandomGenerator.getDefault();
-        StringBuilder sb = new StringBuilder(8);
-        for (int i = 0; i < 8; i++) {
-            sb.append(chars.charAt(rng.nextInt(chars.length())));
-        }
-        return sb.toString();
     }
 }
