@@ -4,10 +4,10 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesPaidEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesReminderEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.MemberAutoInactivatedEvent;
-import com.tertech.tkenlightment.membership.member.domain.events.MemberRegisteredEvent;
 import com.tertech.tkenlightment.membership.member.domain.events.MemberStatusChangedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,9 @@ class NotificationListenerTests {
     }
 
     @Test
-    void shouldSendWelcomeEmailOnMemberRegistered() {
-        memberListener.onMemberRegistered(
-                new MemberRegisteredEvent("m1", "TEC-2026-001", "jane@example.com", "Jane Doe"));
+    void shouldSendWelcomeEmailOnAccountCreated() {
+        memberListener.onAccountCreated(
+                new AccountCreatedEvent("jane@example.com", "Jane Doe", "TEC-2026-001", "Temp1234"));
 
         verify(emailService).send(
                 eq("jane@example.com"),
@@ -42,14 +42,14 @@ class NotificationListenerTests {
     }
 
     @Test
-    void shouldIncludeMemberNameInWelcomeEmail() {
-        memberListener.onMemberRegistered(
-                new MemberRegisteredEvent("m1", "TEC-2026-001", "jane@example.com", "Jane Doe"));
+    void shouldIncludeTempPasswordAndNameInWelcomeEmail() {
+        memberListener.onAccountCreated(
+                new AccountCreatedEvent("jane@example.com", "Jane Doe", "TEC-2026-001", "Temp1234"));
 
         verify(emailService).send(
                 eq("jane@example.com"),
                 contains("Welcome"),
-                contains("Jane Doe"));
+                contains("Temp1234"));
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.tertech.tkenlightment.membership.BaseIT;
 import com.tertech.tkenlightment.membership.member.rest.dtos.MemberResponse;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
@@ -15,6 +16,7 @@ class MemberControllerTests extends BaseIT {
     void shouldRegisterMember() {
         MvcTestResult result = mvc.post()
                 .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -52,10 +54,16 @@ class MemberControllerTests extends BaseIT {
                 }
                 """;
 
-        mvc.post().uri("/api/members").contentType(MediaType.APPLICATION_JSON).content(body).exchange();
+        mvc.post()
+                .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .exchange();
 
         MvcTestResult result = mvc.post()
                 .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
                 .exchange();
@@ -67,6 +75,7 @@ class MemberControllerTests extends BaseIT {
     void shouldRejectInvalidRequest() {
         MvcTestResult result = mvc.post()
                 .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -85,6 +94,7 @@ class MemberControllerTests extends BaseIT {
 
         MvcTestResult getResult = mvc.get()
                 .uri("/api/members/{id}", id)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .exchange();
 
         assertThat(getResult).hasStatusOk();
@@ -98,7 +108,10 @@ class MemberControllerTests extends BaseIT {
     void shouldListMembers() {
         registerAndExtractId("Bob", "Jones", "bob.jones@example.com");
 
-        MvcTestResult result = mvc.get().uri("/api/members").exchange();
+        MvcTestResult result = mvc.get()
+                .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
+                .exchange();
 
         assertThat(result).hasStatusOk();
     }
@@ -109,6 +122,7 @@ class MemberControllerTests extends BaseIT {
 
         MvcTestResult statusResult = mvc.patch()
                 .uri("/api/members/{id}/status", id)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         { "status": "SUSPENDED" }
@@ -127,6 +141,7 @@ class MemberControllerTests extends BaseIT {
 
         MvcTestResult updateResult = mvc.put()
                 .uri("/api/members/{id}/profile", id)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -143,9 +158,27 @@ class MemberControllerTests extends BaseIT {
         });
     }
 
+    @Test
+    void shouldRejectUnauthenticatedRequest() {
+        MvcTestResult result = mvc.get().uri("/api/members").exchange();
+
+        assertThat(result).hasStatus(401);
+    }
+
+    @Test
+    void shouldForbidMemberFromListingMembers() {
+        MvcTestResult result = mvc.get()
+                .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.member("some-member")))
+                .exchange();
+
+        assertThat(result).hasStatus(403);
+    }
+
     private String registerAndExtractId(String firstName, String lastName, String email) {
         MvcTestResult result = mvc.post()
                 .uri("/api/members")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(String.format(
                         """
