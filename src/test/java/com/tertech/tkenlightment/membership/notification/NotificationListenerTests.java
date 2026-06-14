@@ -82,12 +82,13 @@ class NotificationListenerTests {
     }
 
     @Test
-    void shouldSendAnnouncementToEachRecipient() {
+    void shouldSendAnnouncementToEachRecipientWithBrandedBody() {
         announcementListener.onAnnouncementRequested(new AnnouncementRequestedEvent(
                 "Club News", "Meeting on Friday", List.of("a@example.com", "b@example.com")));
 
-        verify(emailService).send(eq("a@example.com"), eq("Club News"), eq("Meeting on Friday"));
-        verify(emailService).send(eq("b@example.com"), eq("Club News"), eq("Meeting on Friday"));
+        // Subject is the admin's; body is wrapped in the club greeting/sign-off.
+        verify(emailService).send(eq("a@example.com"), eq("Club News"), contains("Meeting on Friday"));
+        verify(emailService).send(eq("b@example.com"), eq("Club News"), contains("Taraku Enlightenment Club"));
     }
 
     @Test
@@ -100,7 +101,7 @@ class NotificationListenerTests {
                 "Club News", "Body", List.of("bad@example.com", "good@example.com")));
 
         // The failure is swallowed and the remaining recipient still receives the email.
-        verify(emailService).send(eq("good@example.com"), eq("Club News"), eq("Body"));
+        verify(emailService).send(eq("good@example.com"), eq("Club News"), contains("Body"));
     }
 
     @Test
