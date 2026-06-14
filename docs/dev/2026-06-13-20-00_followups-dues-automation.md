@@ -47,6 +47,10 @@ Both items implemented on `feature/scheduler-hardening` before going multi-insta
 
 Also folded in here: the deferred code-review item — `ALL_MEMBERS` announcements now use a `findByStatusNot(TERMINATED)` query instead of loading the full roster and filtering in memory.
 
+## Future scaling option (design-on-record, not implemented)
+
+If a fan-out (reminders / inactivation / announcements) ever needs to be **drained in parallel across instances** rather than run by a single leader, see the proposed **email outbox with `SELECT … FOR UPDATE SKIP LOCKED` workers**: `2026-06-14-12-00_design-email-outbox.md`. Deferred — ShedLock single-leader + chunked transactions is sufficient at current scale.
+
 ## Out of scope here, tracked elsewhere
 
 - **New-year dues generation** — implemented on `feature/dues-automation` (the original deferred gap from the auth/RBAC spec).
