@@ -1,7 +1,9 @@
 package com.tertech.tkenlightment.membership.notification;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
@@ -10,6 +12,7 @@ import com.tertech.tkenlightment.membership.dues.domain.events.DuesPaidEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesReminderEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.MemberAutoInactivatedEvent;
 import com.tertech.tkenlightment.membership.member.domain.events.MemberStatusChangedEvent;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +27,14 @@ class NotificationListenerTests {
 
     MemberEventNotificationListener memberListener;
     DuesEventNotificationListener duesListener;
+    AnnouncementEventListener announcementListener;
 
     @BeforeEach
     void setUp() {
         memberListener = new MemberEventNotificationListener(
                 emailService, new NotificationProperties("noreply@taraku.test", "https://app.test/reset"));
         duesListener = new DuesEventNotificationListener(emailService);
+        announcementListener = new AnnouncementEventListener(emailService);
     }
 
     @Test
@@ -74,6 +79,28 @@ class NotificationListenerTests {
                 eq("frank@example.com"),
                 contains("Reset"),
                 contains("https://app.test/reset?token=rawtoken123"));
+    }
+
+    @Test
+    void shouldSendAnnouncementToEachRecipient() {
+        announcementListener.onAnnouncementRequested(new AnnouncementRequestedEvent(
+                "Club News", "Meeting on Friday", List.of("a@example.com", "b@example.com")));
+
+        verify(emailService).send(eq("a@example.com"), eq("Club News"), eq("Meeting on Friday"));
+        verify(emailService).send(eq("b@example.com"), eq("Club News"), eq("Meeting on Friday"));
+    }
+
+    @Test
+    void shouldContinueAnnouncementWhenOneRecipientFails() {
+        doThrow(new RuntimeException("smtp down"))
+                .when(emailService)
+                .send(eq("bad@example.com"), anyString(), anyString());
+
+        announcementListener.onAnnouncementRequested(new AnnouncementRequestedEvent(
+                "Club News", "Body", List.of("bad@example.com", "good@example.com")));
+
+        // The failure is swallowed and the remaining recipient still receives the email.
+        verify(emailService).send(eq("good@example.com"), eq("Club News"), eq("Body"));
     }
 
     @Test

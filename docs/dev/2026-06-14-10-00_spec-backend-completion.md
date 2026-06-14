@@ -104,11 +104,13 @@ Body: `{ "subject": "...", "body": "...", "recipientGroup": "ACTIVE_MEMBERS" | "
 - Dispatch email to each recipient through `NotificationAPI` / an announcement event.
 - Return **200** `{ "sentCount": N }`.
 
-## Open questions (resolve at Phase 2 design time)
+## Resolved decisions (implemented 2026-06-14)
 
-- **Sync vs async send:** inline (simple, but request blocks on N emails) vs publish one `AnnouncementRequestedEvent` and fan out asynchronously. Recommendation: async via event listener, return count of *targeted* recipients.
-- **Per-recipient failure handling:** best-effort with per-recipient try/catch (consistent with batch dues jobs) and logged failures.
-- **Persistence/audit:** fire-and-forget vs storing an `announcement` record for history. Spec doesn't require persistence; default fire-and-forget unless an audit trail is wanted.
+- **Async via event:** controller resolves recipients and publishes one `AnnouncementRequestedEvent`; `AnnouncementEventListener` (`@ApplicationModuleListener`) fans out emails after commit. Response returns the **targeted** `recipientCount` immediately.
+- **Best-effort delivery:** per-recipient `try/catch` in the listener — a failed send is logged and the rest still go out.
+- **Fire-and-forget:** no persistence/audit table.
+- **Recipient scope:** `ACTIVE_MEMBERS` → `MemberAPI.findActiveMembers()`; `ALL_MEMBERS` → `MemberAPI.findAllMembers()` filtered to **exclude TERMINATED** ex-members (everyone still in the club: ACTIVE + INACTIVE + SUSPENDED).
+- **Endpoint:** `POST /api/announcements`, ADMIN-only (`@PreAuthorize`), `{ subject, body, recipientGroup }` → `{ recipientCount }`. Lives in the `notification` module (`notification → member` via `MemberAPI`, no cycle).
 
 ---
 
