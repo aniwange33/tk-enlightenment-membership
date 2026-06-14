@@ -5,6 +5,7 @@ import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPubl
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
@@ -27,6 +28,7 @@ class PasswordResetService {
     private static final Duration TOKEN_TTL = Duration.ofHours(24);
     private static final int TOKEN_BYTES = 32;
     private static final String INVALID_TOKEN = "Invalid or expired reset token";
+    private static final HexFormat HEX = HexFormat.of();
 
     private final UserAccountRepository accountRepository;
     private final PasswordResetTokenRepository tokenRepository;
@@ -104,15 +106,15 @@ class PasswordResetService {
     private String generateRawToken() {
         byte[] bytes = new byte[TOKEN_BYTES];
         secureRandom.nextBytes(bytes);
-        return HexFormat.of().formatHex(bytes);
+        return HEX.formatHex(bytes);
     }
 
     private String hash(String rawToken) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")
                     .digest(rawToken.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (java.security.NoSuchAlgorithmException e) {
+            return HEX.formatHex(digest);
+        } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 unavailable", e);
         }
     }

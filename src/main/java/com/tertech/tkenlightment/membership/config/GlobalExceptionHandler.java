@@ -4,6 +4,7 @@ import com.tertech.tkenlightment.membership.shared.domain.exceptions.DomainExcep
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.MemberAlreadyExistsException;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
 import java.net.URI;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -78,6 +79,15 @@ public class GlobalExceptionHandler {
                 ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
         problem.setType(URI.create("about:blank"));
         problem.setTitle("Forbidden");
+        return problem;
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, "The resource was modified concurrently; please retry");
+        problem.setType(URI.create("about:blank"));
+        problem.setTitle("Conflict");
         return problem;
     }
 
