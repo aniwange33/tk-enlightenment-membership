@@ -40,6 +40,10 @@ public class MemberAPI {
         return memberService.findActiveMembers();
     }
 
+    public List<MemberResult> findAllMembers() {
+        return memberService.findAllMembers();
+    }
+
     public MemberResult inactivateMember(String memberId) {
         return memberService.inactivateMember(memberId);
     }

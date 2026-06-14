@@ -89,6 +89,11 @@ class MemberService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    List<MemberResult> findAllMembers() {
+        return memberRepository.findAll().stream().map(mapper::toResult).toList();
+    }
+
     MemberResult changeStatus(ChangeStatusCmd cmd) {
         MemberEntity member = memberRepository.getById(new MemberId(cmd.memberId()));
         String oldStatus = member.getStatus().name();
