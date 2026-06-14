@@ -19,12 +19,25 @@ class AnnouncementEventListener {
 
     @ApplicationModuleListener
     void onAnnouncementRequested(AnnouncementRequestedEvent event) {
+        String body = brandedBody(event.body());
         for (String email : event.recipientEmails()) {
             try {
-                emailService.send(email, event.subject(), event.body());
+                emailService.send(email, event.subject(), body);
             } catch (Exception e) {
                 log.error("Failed to send announcement to {}", email, e);
             }
         }
+    }
+
+    /** Wraps the admin's message in the club's greeting and sign-off, matching the other emails. */
+    private String brandedBody(String message) {
+        return """
+                Dear Member,
+
+                %s
+
+                Warm regards,
+                Taraku Enlightenment Club"""
+                .formatted(message);
     }
 }

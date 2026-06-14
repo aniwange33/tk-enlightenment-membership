@@ -15,6 +15,9 @@ public class NotificationAPI {
 
     /** Sends an announcement to the given audience; returns the number of recipients targeted. */
     public int sendAnnouncement(String subject, String body, RecipientGroup recipientGroup) {
+
+
+
         return announcementService.sendAnnouncement(subject, body, recipientGroup);
     }
 }
