@@ -22,7 +22,7 @@ class AnnouncementEventListener {
         for (String email : event.recipientEmails()) {
             try {
                 emailService.send(email, event.subject(), event.body());
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 log.error("Failed to send announcement to {}", email, e);
             }
         }
