@@ -1,6 +1,7 @@
 package com.tertech.tkenlightment.membership.notification;
 
 import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
+import com.tertech.tkenlightment.membership.auth.domain.events.PasswordResetRequestedEvent;
 import com.tertech.tkenlightment.membership.member.domain.events.MemberStatusChangedEvent;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
@@ -9,9 +10,11 @@ import org.springframework.stereotype.Component;
 class MemberEventNotificationListener {
 
     private final EmailService emailService;
+    private final NotificationProperties properties;
 
-    MemberEventNotificationListener(EmailService emailService) {
+    MemberEventNotificationListener(EmailService emailService, NotificationProperties properties) {
         this.emailService = emailService;
+        this.properties = properties;
     }
 
     @ApplicationModuleListener
@@ -32,6 +35,27 @@ class MemberEventNotificationListener {
                 Regards,
                 Taraku Enlightenment Club
                 """.formatted(event.fullName(), event.membershipNumber(), event.tempPassword()));
+    }
+
+    @ApplicationModuleListener
+    void onPasswordResetRequested(PasswordResetRequestedEvent event) {
+        String resetLink = properties.resetLinkBaseUrl() + "?token=" + event.rawToken();
+        emailService.send(
+                event.email(),
+                "Reset your Taraku Enlightenment Club password",
+                """
+                Hello,
+
+                We received a request to reset your password. Use the link below to choose a new one.
+                This link expires in 24 hours and can be used once.
+
+                %s
+
+                If you did not request this, you can safely ignore this email.
+
+                Regards,
+                Taraku Enlightenment Club
+                """.formatted(resetLink));
     }
 
     @ApplicationModuleListener

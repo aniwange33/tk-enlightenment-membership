@@ -43,6 +43,11 @@ class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password")
+                        .permitAll()
                         .requestMatchers(PUBLIC_GET).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

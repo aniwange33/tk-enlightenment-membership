@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.tertech.tkenlightment.membership.auth.domain.events.AccountCreatedEvent;
+import com.tertech.tkenlightment.membership.auth.domain.events.PasswordResetRequestedEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesPaidEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesReminderEvent;
 import com.tertech.tkenlightment.membership.dues.domain.events.MemberAutoInactivatedEvent;
@@ -26,7 +27,8 @@ class NotificationListenerTests {
 
     @BeforeEach
     void setUp() {
-        memberListener = new MemberEventNotificationListener(emailService);
+        memberListener = new MemberEventNotificationListener(
+                emailService, new NotificationProperties("noreply@taraku.test", "https://app.test/reset"));
         duesListener = new DuesEventNotificationListener(emailService);
     }
 
@@ -61,6 +63,17 @@ class NotificationListenerTests {
                 eq("bob@example.com"),
                 contains("status"),
                 contains("SUSPENDED"));
+    }
+
+    @Test
+    void shouldSendResetEmailWithTokenLink() {
+        memberListener.onPasswordResetRequested(
+                new PasswordResetRequestedEvent("frank@example.com", "rawtoken123"));
+
+        verify(emailService).send(
+                eq("frank@example.com"),
+                contains("Reset"),
+                contains("https://app.test/reset?token=rawtoken123"));
     }
 
     @Test

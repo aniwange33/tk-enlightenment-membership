@@ -8,9 +8,11 @@ import org.springframework.stereotype.Component;
 public class AuthAPI {
 
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
-    AuthAPI(AuthService authService) {
+    AuthAPI(AuthService authService, PasswordResetService passwordResetService) {
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
     }
 
     public LoginResponse login(String email, String password) {
@@ -19,6 +21,14 @@ public class AuthAPI {
 
     public LoginResponse changePassword(String accountId, String currentPassword, String newPassword) {
         return toResponse(authService.changePassword(accountId, currentPassword, newPassword));
+    }
+
+    public void requestPasswordReset(String email) {
+        passwordResetService.requestReset(email);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        passwordResetService.resetPassword(token, newPassword);
     }
 
     private LoginResponse toResponse(TokenResult result) {
