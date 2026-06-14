@@ -2,6 +2,7 @@ package com.tertech.tkenlightment.membership.dues;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +22,7 @@ class DuesScheduler {
     }
 
     @Scheduled(cron = "0 0 0 1 1 *", zone = "UTC")
+    @SchedulerLock(name = "generateDuesForNewYear", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     void generateDuesForNewYear() {
         int year = LocalDate.now(clock).getYear();
         log.info("Running scheduled dues generation for year {}", year);
@@ -28,6 +30,7 @@ class DuesScheduler {
     }
 
     @Scheduled(cron = "0 0 0 1 4 *", zone = "UTC")
+    @SchedulerLock(name = "sendDuesReminders", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     void sendDuesReminders() {
         int year = LocalDate.now(clock).getYear();
         log.info("Running scheduled dues reminders for year {}", year);
@@ -35,6 +38,7 @@ class DuesScheduler {
     }
 
     @Scheduled(cron = "0 0 0 1 5 *", zone = "UTC")
+    @SchedulerLock(name = "inactivateUnpaidMembers", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     void inactivateUnpaidMembers() {
         int year = LocalDate.now(clock).getYear();
         log.info("Running scheduled dues inactivation for year {}", year);

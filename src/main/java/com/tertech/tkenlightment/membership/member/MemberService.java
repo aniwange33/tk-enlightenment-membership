@@ -90,8 +90,10 @@ class MemberService {
     }
 
     @Transactional(readOnly = true)
-    List<MemberResult> findAllMembers() {
-        return memberRepository.findAll().stream().map(mapper::toResult).toList();
+    List<MemberResult> findNonTerminatedMembers() {
+        return memberRepository.findByStatusNot(MemberStatus.TERMINATED).stream()
+                .map(mapper::toResult)
+                .toList();
     }
 
     MemberResult changeStatus(ChangeStatusCmd cmd) {

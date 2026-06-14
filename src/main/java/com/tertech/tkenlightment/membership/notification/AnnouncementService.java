@@ -1,7 +1,6 @@
 package com.tertech.tkenlightment.membership.notification;
 
 import com.tertech.tkenlightment.membership.member.MemberAPI;
-import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
 import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.notification.rest.dtos.RecipientGroup;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
@@ -41,9 +40,7 @@ class AnnouncementService {
         return switch (group) {
             case ACTIVE_MEMBERS -> memberAPI.findActiveMembers();
                 // "All members" excludes ex-members who have left the club (TERMINATED).
-            case ALL_MEMBERS -> memberAPI.findAllMembers().stream()
-                    .filter(member -> member.status() != MemberStatus.TERMINATED)
-                    .toList();
+            case ALL_MEMBERS -> memberAPI.findNonTerminatedMembers();
         };
     }
 }

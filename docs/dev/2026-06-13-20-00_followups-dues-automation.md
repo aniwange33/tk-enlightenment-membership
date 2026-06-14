@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-13
 **Branch context:** `feature/dues-automation`
-**Status:** Deferred (not blocking the dues-automation change)
+**Status:** ✅ RESOLVED 2026-06-14 on `feature/scheduler-hardening` — both items below are implemented. See "Resolution" at the bottom.
 
 These two items surfaced during the dues implementation review. They were intentionally left out of the `feature/dues-automation` change because neither is a correctness bug at the current (single-instance) deployment scale. Captured here so they are not lost.
 
@@ -37,6 +37,19 @@ These two items surfaced during the dues implementation review. They were intent
 **Trigger to act:** when the active-member count is large enough that a single-transaction sweep becomes a latency/locking concern.
 
 ---
+
+## Resolution (2026-06-14)
+
+Both items implemented on `feature/scheduler-hardening` before going multi-instance:
+
+1. **ShedLock** added (`shedlock-spring` + `shedlock-provider-jdbc-template` 6.10.0). `SchedulerLockConfig` enables it with a JDBC `LockProvider` over the existing Postgres datasource using `usingDbTime()`; Flyway `V6` creates the `shedlock` table. All three `@Scheduled` methods carry `@SchedulerLock` (`lockAtMostFor=PT1H`, `lockAtLeastFor=PT5M`) so exactly one instance runs each job per fire.
+2. **Chunked batch transactions** — `DuesService` batch methods are now `@Transactional(NOT_SUPPORTED)` orchestrators that page the source (active members / unpaid records, `dues.batch.chunk-size` default 500) and hand each page to `DuesChunkService`, whose methods run one transaction per chunk. A failed chunk is logged and the sweep continues (partial progress durable at chunk granularity).
+
+Also folded in here: the deferred code-review item — `ALL_MEMBERS` announcements now use a `findByStatusNot(TERMINATED)` query instead of loading the full roster and filtering in memory.
+
+## Future scaling option (design-on-record, not implemented)
+
+If a fan-out (reminders / inactivation / announcements) ever needs to be **drained in parallel across instances** rather than run by a single leader, see the proposed **email outbox with `SELECT … FOR UPDATE SKIP LOCKED` workers**: `2026-06-14-12-00_design-email-outbox.md`. Deferred — ShedLock single-leader + chunked transactions is sufficient at current scale.
 
 ## Out of scope here, tracked elsewhere
 

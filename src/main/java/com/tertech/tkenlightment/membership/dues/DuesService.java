@@ -1,8 +1,6 @@
 package com.tertech.tkenlightment.membership.dues;
 
 import com.tertech.tkenlightment.membership.dues.domain.events.DuesPaidEvent;
-import com.tertech.tkenlightment.membership.dues.domain.events.DuesReminderEvent;
-import com.tertech.tkenlightment.membership.dues.domain.events.MemberAutoInactivatedEvent;
 import com.tertech.tkenlightment.membership.member.MemberAPI;
 import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
 import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
@@ -12,9 +10,15 @@ import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNot
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -26,38 +30,60 @@ class DuesService {
     private final DuesRecordRepository duesRepository;
     private final MemberAPI memberAPI;
     private final SpringEventPublisher eventPublisher;
+    private final DuesChunkService duesChunkService;
     private final Clock clock;
+    private final int chunkSize;
 
     DuesService(
             DuesRecordRepository duesRepository,
             MemberAPI memberAPI,
             SpringEventPublisher eventPublisher,
-            Clock clock) {
+            DuesChunkService duesChunkService,
+            Clock clock,
+            @Value("${dues.batch.chunk-size:500}") int chunkSize) {
         this.duesRepository = duesRepository;
         this.memberAPI = memberAPI;
         this.eventPublisher = eventPublisher;
+        this.duesChunkService = duesChunkService;
         this.clock = clock;
+        this.chunkSize = chunkSize;
     }
 
     void createDuesRecord(String memberId, int year) {
-        if (duesRepository.findByMemberIdAndYear(memberId, year).isPresent()) {
-            log.debug("Dues record already exists for member {} and year {}", memberId, year);
-            return;
-        }
-        duesRepository.save(DuesRecordEntity.create(memberId, year));
+        duesChunkService.createDuesRecord(memberId, year);
     }
 
     /**
      * Creates an unpaid dues record for the given year for every ACTIVE member that does not already
-     * have one. Idempotent (safe to re-run) — without this, the April/May jobs only ever see members
-     * registered in the current year.
+     * have one. Idempotent — without this, the April/May jobs only ever see members registered in the
+     * current year. Runs outside a transaction and commits one transaction per chunk.
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void generateDuesForYear(int year) {
-        List<MemberResult> activeMembers = memberAPI.findActiveMembers();
-        log.info("Generating dues records for {} active members for year {}", activeMembers.size(), year);
-        for (MemberResult member : activeMembers) {
-            createDuesRecord(member.id(), year);
-        }
+        log.info("Generating dues records for active members for year {}", year);
+        int page = 0;
+        Page<MemberResult> members;
+        do {
+            members = memberAPI.listMembers(null, MemberStatus.ACTIVE, PageRequest.of(page, chunkSize));
+            List<String> memberIds =
+                    members.getContent().stream().map(MemberResult::id).toList();
+            if (!memberIds.isEmpty()) {
+                runChunk(() -> duesChunkService.createDuesRecordsForChunk(memberIds, year), "generate dues", year);
+            }
+            page++;
+        } while (members.hasNext());
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void sendDuesReminders(int year) {
+        log.info("Sending dues reminders for year {}", year);
+        forEachUnpaidChunk(year, memberIds -> duesChunkService.sendRemindersForChunk(memberIds, year), "send dues reminders");
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void inactivateUnpaidMembers(int year) {
+        log.info("Inactivating unpaid members for year {}", year);
+        forEachUnpaidChunk(year, memberIds -> duesChunkService.inactivateForChunk(memberIds, year), "inactivate unpaid members");
     }
 
     DuesRecordEntity markPaid(String memberId, int year) {
@@ -92,45 +118,27 @@ class DuesService {
         return duesRepository.findByMemberIdOrderByYearDesc(memberId);
     }
 
-    void sendDuesReminders(int year) {
-        List<DuesRecordEntity> unpaidRecords = duesRepository.findUnpaidForYear(year);
-        log.info("Sending dues reminders for year {} to {} unpaid members", year, unpaidRecords.size());
-
-        for (DuesRecordEntity record : unpaidRecords) {
-            try {
-                MemberResult member = memberAPI.getMember(record.getMemberId());
-                if (member.status() == MemberStatus.ACTIVE) {
-                    eventPublisher.publish(new DuesReminderEvent(
-                            record.getMemberId(),
-                            member.email(),
-                            member.firstName() + " " + member.lastName(),
-                            year));
-                }
-            } catch (Exception e) {
-                log.error("Failed to send dues reminder to member {} for year {}", record.getMemberId(), year, e);
+    /** Pages the unpaid records for the year and hands each page's member ids to {@code chunk}. */
+    private void forEachUnpaidChunk(int year, Consumer<List<String>> chunk, String label) {
+        int page = 0;
+        Page<DuesRecordEntity> records;
+        do {
+            records = duesRepository.findByYearAndPaidFalse(year, PageRequest.of(page, chunkSize, Sort.by("memberId")));
+            List<String> memberIds =
+                    records.getContent().stream().map(DuesRecordEntity::getMemberId).toList();
+            if (!memberIds.isEmpty()) {
+                runChunk(() -> chunk.accept(memberIds), label, year);
             }
-        }
+            page++;
+        } while (records.hasNext());
     }
 
-    void inactivateUnpaidMembers(int year) {
-        List<DuesRecordEntity> unpaidRecords = duesRepository.findUnpaidForYear(year);
-        log.info("Found {} unpaid dues records for year {}", unpaidRecords.size(), year);
-
-        for (DuesRecordEntity record : unpaidRecords) {
-            try {
-                MemberResult member = memberAPI.getMember(record.getMemberId());
-                if (member.status() == MemberStatus.ACTIVE) {
-                    memberAPI.inactivateMember(record.getMemberId());
-                    eventPublisher.publish(new MemberAutoInactivatedEvent(
-                            record.getMemberId(),
-                            member.email(),
-                            member.firstName() + " " + member.lastName(),
-                            year));
-                    log.info("Auto-inactivated member {} for unpaid dues year {}", record.getMemberId(), year);
-                }
-            } catch (Exception e) {
-                log.error("Failed to inactivate member {} for year {}", record.getMemberId(), year, e);
-            }
+    /** Runs one chunk's transactional work; a failed chunk is logged so the sweep continues. */
+    private void runChunk(Runnable chunk, String label, int year) {
+        try {
+            chunk.run();
+        } catch (Exception e) {
+            log.error("Chunk failed during {} for year {}", label, year, e);
         }
     }
 }

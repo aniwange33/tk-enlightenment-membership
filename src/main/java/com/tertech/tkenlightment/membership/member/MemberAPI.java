@@ -40,8 +40,8 @@ public class MemberAPI {
         return memberService.findActiveMembers();
     }
 
-    public List<MemberResult> findAllMembers() {
-        return memberService.findAllMembers();
+    public List<MemberResult> findNonTerminatedMembers() {
+        return memberService.findNonTerminatedMembers();
     }
 
     public MemberResult inactivateMember(String memberId) {
