@@ -39,6 +39,28 @@ class AnnouncementControllerTests extends BaseIT {
     }
 
     @Test
+    void allMembersExcludesTerminatedExMembers() {
+        String staying = "announce.staying@example.com";
+        String left = "announce.left@example.com";
+        registerMember(staying);
+        String leftId = registerMember(left);
+        // Terminate one member: they have left the club.
+        MvcTestResult terminated = mvc.patch()
+                .uri("/api/members/{id}/status", leftId)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokens.admin()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"status\": \"TERMINATED\" }")
+                .exchange();
+        assertThat(terminated).hasStatusOk();
+
+        String subject = "Members-Only Notice " + leftId;
+        assertThat(sendAnnouncement(tokens.admin(), subject, "Body", "ALL_MEMBERS")).hasStatusOk();
+
+        List<String> recipients = awaitAnnouncementRecipients(subject);
+        assertThat(recipients).contains(staying).doesNotContain(left);
+    }
+
+    @Test
     void memberCannotSendAnnouncement() {
         String memberId = registerMember("announce.member@example.com");
 

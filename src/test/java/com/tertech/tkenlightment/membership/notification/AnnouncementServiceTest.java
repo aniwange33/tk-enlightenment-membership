@@ -55,7 +55,7 @@ class AnnouncementServiceTest {
         int count = service.sendAnnouncement("Subject", "Body", RecipientGroup.ACTIVE_MEMBERS);
 
         assertThat(count).isEqualTo(2);
-        verify(memberAPI, never()).findAllMembers();
+        verify(memberAPI, never()).findNonTerminatedMembers();
         verify(eventPublisher).publish(eventCaptor.capture());
         AnnouncementRequestedEvent event = eventCaptor.getValue();
         assertThat(event.subject()).isEqualTo("Subject");
@@ -64,8 +64,9 @@ class AnnouncementServiceTest {
     }
 
     @Test
-    void allGroupTargetsAllMembers() {
-        when(memberAPI.findAllMembers())
+    void allGroupTargetsNonTerminatedMembers() {
+        // The member layer (findByStatusNot) excludes TERMINATED; the service just delegates.
+        when(memberAPI.findNonTerminatedMembers())
                 .thenReturn(List.of(
                         memberWithEmail("a@example.com"),
                         memberWithEmail("b@example.com"),
@@ -76,23 +77,6 @@ class AnnouncementServiceTest {
         assertThat(count).isEqualTo(3);
         verify(memberAPI, never()).findActiveMembers();
         verify(eventPublisher).publish(any(AnnouncementRequestedEvent.class));
-    }
-
-    @Test
-    void allGroupExcludesTerminatedMembers() {
-        when(memberAPI.findAllMembers())
-                .thenReturn(List.of(
-                        memberWithStatus("active@example.com", MemberStatus.ACTIVE),
-                        memberWithStatus("suspended@example.com", MemberStatus.SUSPENDED),
-                        memberWithStatus("left@example.com", MemberStatus.TERMINATED)));
-
-        int count = service.sendAnnouncement("Subject", "Body", RecipientGroup.ALL_MEMBERS);
-
-        assertThat(count).isEqualTo(2);
-        verify(eventPublisher).publish(eventCaptor.capture());
-        assertThat(eventCaptor.getValue().recipientEmails())
-                .containsExactly("active@example.com", "suspended@example.com")
-                .doesNotContain("left@example.com");
     }
 
     @Test

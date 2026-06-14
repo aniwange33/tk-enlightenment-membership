@@ -36,6 +36,8 @@ interface MemberRepository extends JpaRepository<MemberEntity, MemberId> {
     @Query("SELECT m FROM MemberEntity m WHERE m.status = 'ACTIVE'")
     List<MemberEntity> findActiveMembers();
 
+    List<MemberEntity> findByStatusNot(MemberStatus status);
+
     default MemberEntity getById(MemberId id) {
         return findById(id)
                 .orElseThrow(
