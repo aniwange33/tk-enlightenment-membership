@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Portal — Taraku Enlightenment Club</title>
+  <link rel="icon" href="assets/tk-logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@300;400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <!-- shared design system, then member-specific components -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="member.css" />
+</head>
+<body class="app">
+  <div class="field" aria-hidden="true"><div class="halo halo--portal"></div><div class="grain"></div></div>
+
+  <!-- ── top bar ─────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <a class="topbar__brand" href="index.html" aria-label="Taraku home">
+      <img class="emblem emblem--sm" src="assets/tk-logo.jpg" alt="" width="34" height="34" />
+      <span class="topbar__mark">Taraku</span>
+      <span class="topbar__div"></span>
+      <span class="topbar__sec">Members</span>
+    </a>
+    <div class="topbar__user">
+      <span class="who"><span class="who__name" data-name>Amara Okonkwo</span>
+        <span class="who__no" data-mono data-number>TEC-2021-014</span></span>
+      <span class="avatar" data-initials aria-hidden="true">AO</span>
+      <a class="btn btn--ghost btn--sm" href="index.html"><span>Sign out</span></a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <!-- ── membership credential ─────────────────────────────────────────── -->
+    <section class="card rise" style="--d:.05s" aria-label="Membership card">
+      <div class="card__sheen" aria-hidden="true"></div>
+      <div class="card__top">
+        <span class="card__club">Taraku Enlightenment Club</span>
+        <img class="emblem emblem--card" src="assets/tk-logo.jpg" alt="" width="46" height="46" />
+      </div>
+      <div class="card__body">
+        <span class="card__label">Member</span>
+        <h1 class="card__name" data-name>Amara Okonkwo</h1>
+        <span class="card__number" data-mono data-number>TEC-2021-014</span>
+      </div>
+      <div class="card__foot">
+        <span class="card__since">Member since <b data-since>2021</b></span>
+        <span class="badge badge--active" data-status>Active</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <!-- ── profile ─────────────────────────────────────────────────────── -->
+      <section class="block rise" style="--d:.14s">
+        <div class="block__head">
+          <h2 class="block__title">My profile</h2>
+          <button class="link-btn" type="button" data-edit><span>Edit contact details</span></button>
+        </div>
+
+        <div class="msg" data-msg hidden></div>
+
+        <form class="rows" data-profile novalidate>
+          <div class="row"><span class="row__k">Membership&nbsp;no.</span>
+            <span class="row__v" data-mono data-number>TEC-2021-014</span></div>
+          <div class="row"><span class="row__k">Email</span>
+            <span class="row__v" data-field="email">amara@taraku.org</span></div>
+          <div class="row"><span class="row__k">Date of birth</span>
+            <span class="row__v">14 March 1989</span></div>
+          <div class="row"><span class="row__k">Joined</span>
+            <span class="row__v">02 February 2021</span></div>
+
+          <div class="row row--edit"><span class="row__k">Phone</span>
+            <span class="row__v" data-view-value="phone">+234 802 555 0114</span>
+            <span class="row__edit" hidden>
+              <input name="phone" type="tel" autocomplete="tel" value="+234 802 555 0114" />
+            </span></div>
+
+          <div class="row row--edit"><span class="row__k">Address</span>
+            <span class="row__v" data-view-value="address">14 Lantern Way, Makurdi, Benue</span>
+            <span class="row__edit" hidden>
+              <input name="address" type="text" autocomplete="street-address"
+                     value="14 Lantern Way, Makurdi, Benue" />
+            </span></div>
+
+          <div class="rows__actions" data-actions hidden>
+            <button class="btn" type="submit"><span>Save changes</span><i class="btn__spark"></i></button>
+            <button class="btn btn--ghost" type="button" data-cancel><span>Cancel</span></button>
+          </div>
+        </form>
+        <p class="note">Only your phone and address can be changed here. Other details are kept by the club.</p>
+      </section>
+
+      <!-- ── dues ────────────────────────────────────────────────────────── -->
+      <section class="block rise" style="--d:.22s">
+        <div class="block__head">
+          <h2 class="block__title">My dues</h2>
+          <span class="block__meta" data-dues-summary></span>
+        </div>
+        <table class="dues">
+          <thead><tr><th>Year</th><th>Status</th><th>Paid on</th></tr></thead>
+          <tbody data-dues></tbody>
+        </table>
+        <p class="note">Dues are recorded by club officers. Questions? Contact the secretariat.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <span>Taraku Enlightenment Club</span><span class="foot__dot">·</span>
+    <span>Member Portal</span><span class="foot__dot">·</span>
+    <span class="foot__tag">prototype</span>
+  </footer>
+
+  <script src="member.js"></script>
+</body>
+</html>
