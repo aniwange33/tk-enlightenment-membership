@@ -21,7 +21,9 @@
 		<jjwt.version>0.12.6</jjwt.version>
 		<shedlock.version>6.10.0</shedlock.version>
 		<frontend-plugin.version>1.15.1</frontend-plugin.version>
-		<node.version>v22.11.0</node.version>
+		<!-- >=22.12.0 required by Vite/rolldown; older Node makes npm skip the native
+		     binding (@rolldown/binding-*) as an engine-incompatible optional dep -->
+		<node.version>v22.22.3</node.version>
 		<!-- set -Dfrontend.skip=true to package without rebuilding the SPA -->
 		<frontend.skip>false</frontend.skip>
 	</properties>
@@ -268,11 +270,13 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>npm-ci</id>
+						<!-- `install`, not `ci`: npm ci can omit platform-specific optional deps
+						     (e.g. @rolldown/binding-*), breaking the Vite build (npm/cli#4828). -->
+						<id>npm-install</id>
 						<goals><goal>npm</goal></goals>
 						<phase>prepare-package</phase>
 						<configuration>
-							<arguments>ci</arguments>
+							<arguments>install</arguments>
 						</configuration>
 					</execution>
 					<execution>
