@@ -20,6 +20,10 @@
 		<taikai.version>1.13.0</taikai.version>
 		<jjwt.version>0.12.6</jjwt.version>
 		<shedlock.version>6.10.0</shedlock.version>
+		<frontend-plugin.version>1.15.1</frontend-plugin.version>
+		<node.version>v22.11.0</node.version>
+		<!-- set -Dfrontend.skip=true to package without rebuilding the SPA -->
+		<frontend.skip>false</frontend.skip>
 	</properties>
 
 	<dependencies>
@@ -240,6 +244,46 @@
 			<plugin>
 				<groupId>io.github.git-commit-id</groupId>
 				<artifactId>git-commit-id-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- Build the React SPA into target/classes/static at package time, so the
+			     whole app ships as one jar. Bound to prepare-package so `mvn test` is
+			     unaffected (no Node needed for tests). Skippable via -Dfrontend.skip=true. -->
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>${frontend-plugin.version}</version>
+				<configuration>
+					<workingDirectory>frontend</workingDirectory>
+					<installDirectory>target</installDirectory>
+					<skip>${frontend.skip}</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-node-and-npm</id>
+						<goals><goal>install-node-and-npm</goal></goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<nodeVersion>${node.version}</nodeVersion>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm-ci</id>
+						<goals><goal>npm</goal></goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<arguments>ci</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm-build</id>
+						<goals><goal>npm</goal></goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

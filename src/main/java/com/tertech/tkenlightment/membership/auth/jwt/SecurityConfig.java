@@ -42,14 +42,17 @@ class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(
                                 HttpMethod.POST,
+                                "/api/auth/login",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password")
                         .permitAll()
                         .requestMatchers(PUBLIC_GET).permitAll()
-                        .anyRequest().authenticated())
+                        // The REST API is protected; everything else (the SPA shell, its
+                        // assets, and client-side routes) is public — the SPA guards itself.
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler()))

@@ -13,7 +13,8 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "../src/main/resources/static",
+    // emit straight into the packaged classes so Maven includes it in the jar
+    outDir: "../target/classes/static",
     emptyOutDir: true,
   },
 });

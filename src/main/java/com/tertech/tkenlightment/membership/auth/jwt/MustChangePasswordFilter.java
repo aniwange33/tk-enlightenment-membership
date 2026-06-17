@@ -25,6 +25,12 @@ class MustChangePasswordFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        // Only gate the REST API; the SPA shell must always load so a first-login
+        // user can reach the change-password screen client-side.
+        if (!request.getRequestURI().startsWith("/api/")) {
+            chain.doFilter(request, response);
+            return;
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof AuthPrincipal principal
                 && principal.mustChangePassword()
