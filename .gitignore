@@ -37,3 +37,8 @@ build/
 ### Environment ###
 .env
 !.env.example
+
+### Frontend ###
+# Vite build output — generated into Spring static at package time, never committed
+/src/main/resources/static/
+frontend/node_modules/
