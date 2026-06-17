@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" data-view="login">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Taraku Enlightenment Club — Members</title>
+  <meta name="description" content="Members' access for the Taraku Enlightenment Club." />
+  <link rel="icon" href="assets/tk-logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@300;400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- atmosphere: deep field, breathing glow, fine grain -->
+  <div class="field" aria-hidden="true">
+    <div class="halo"></div>
+    <div class="grain"></div>
+  </div>
+
+  <main class="frame">
+    <!-- ───────────────────────── brand aside ───────────────────────── -->
+    <aside class="aside">
+      <div class="brand">
+        <img class="emblem emblem--lg rise" style="--d:.04s" src="assets/tk-logo.jpg"
+             alt="Taraku Enlightenment Club emblem" width="96" height="96" />
+        <span class="brand__eyebrow rise" style="--d:.12s">· United to Enlighten ·</span>
+        <h1 class="brand__mark rise" style="--d:.18s">Taraku</h1>
+        <p class="brand__sub rise" style="--d:.24s">Enlightenment&nbsp;Club</p>
+      </div>
+
+      <figure class="tenet rise" style="--d:.36s">
+        <blockquote id="tenet">“Knowledge kept is a candle; knowledge shared is the dawn.”</blockquote>
+        <figcaption>— Club Tenet</figcaption>
+      </figure>
+    </aside>
+
+    <!-- ───────────────────────── form panel ───────────────────────── -->
+    <section class="panel" aria-live="polite">
+      <!-- LOGIN -->
+      <form class="view" data-view="login" novalidate autocomplete="on">
+        <p class="eyebrow rise" style="--d:.14s">Welcome back</p>
+        <h2 class="heading rise" style="--d:.2s">Sign in</h2>
+        <p class="lede rise" style="--d:.26s">Enter your member credentials to continue.</p>
+
+        <div class="msg" data-msg hidden></div>
+
+        <label class="field-row rise" style="--d:.32s">
+          <span class="label">Email</span>
+          <input type="email" name="email" inputmode="email" autocomplete="username"
+                 placeholder="you@taraku.org" required />
+          <span class="err" data-err></span>
+        </label>
+
+        <label class="field-row rise" style="--d:.38s">
+          <span class="label">Password</span>
+          <span class="pw">
+            <input type="password" name="password" autocomplete="current-password"
+                   placeholder="••••••••" required minlength="8" />
+            <button type="button" class="pw__toggle" data-toggle aria-label="Show password">show</button>
+          </span>
+          <span class="err" data-err></span>
+        </label>
+
+        <button class="btn rise" style="--d:.44s" type="submit">
+          <span>Enter</span><i class="btn__spark" aria-hidden="true"></i>
+        </button>
+
+        <div class="alt rise" style="--d:.5s">
+          <a href="#forgot" data-go="forgot">Forgot your password?</a>
+        </div>
+        <p class="hint rise" style="--d:.56s">
+          Demo · use <code>first@taraku.org</code> to see the first sign-in flow.
+        </p>
+      </form>
+
+      <!-- FIRST-RUN: CHANGE PASSWORD -->
+      <form class="view" data-view="change" novalidate hidden>
+        <p class="eyebrow">First sign-in</p>
+        <h2 class="heading">Choose a new password</h2>
+        <p class="lede">For your security, set a personal password before you continue.</p>
+
+        <div class="msg" data-msg hidden></div>
+
+        <label class="field-row">
+          <span class="label">Current password</span>
+          <span class="pw">
+            <input type="password" name="currentPassword" autocomplete="current-password"
+                   placeholder="temporary password" required />
+            <button type="button" class="pw__toggle" data-toggle aria-label="Show password">show</button>
+          </span>
+          <span class="err" data-err></span>
+        </label>
+
+        <label class="field-row">
+          <span class="label">New password</span>
+          <span class="pw">
+            <input type="password" name="newPassword" autocomplete="new-password"
+                   placeholder="at least 8 characters" required minlength="8" data-strength />
+            <button type="button" class="pw__toggle" data-toggle aria-label="Show password">show</button>
+          </span>
+          <span class="meter" data-meter aria-hidden="true"><i></i></span>
+          <span class="err" data-err></span>
+        </label>
+
+        <button class="btn" type="submit"><span>Set password &amp; continue</span><i class="btn__spark"></i></button>
+      </form>
+
+      <!-- FORGOT -->
+      <form class="view" data-view="forgot" novalidate hidden>
+        <p class="eyebrow">Recover access</p>
+        <h2 class="heading">Forgot password</h2>
+        <p class="lede">We'll send a reset link to your registered email. It expires in 24&nbsp;hours.</p>
+
+        <div class="msg" data-msg hidden></div>
+
+        <label class="field-row">
+          <span class="label">Email</span>
+          <input type="email" name="email" autocomplete="username" placeholder="you@taraku.org" required />
+          <span class="err" data-err></span>
+        </label>
+
+        <button class="btn" type="submit"><span>Send reset link</span><i class="btn__spark"></i></button>
+        <div class="alt"><a href="#login" data-go="login">← Back to sign in</a></div>
+      </form>
+
+      <!-- RESET -->
+      <form class="view" data-view="reset" novalidate hidden>
+        <p class="eyebrow">Recover access</p>
+        <h2 class="heading">Set a new password</h2>
+        <p class="lede" data-reset-lede>Choose a new password to finish resetting your account.</p>
+
+        <div class="msg" data-msg hidden></div>
+
+        <label class="field-row">
+          <span class="label">New password</span>
+          <span class="pw">
+            <input type="password" name="newPassword" autocomplete="new-password"
+                   placeholder="at least 8 characters" required minlength="8" data-strength />
+            <button type="button" class="pw__toggle" data-toggle aria-label="Show password">show</button>
+          </span>
+          <span class="meter" data-meter aria-hidden="true"><i></i></span>
+          <span class="err" data-err></span>
+        </label>
+
+        <button class="btn" type="submit"><span>Reset password</span><i class="btn__spark"></i></button>
+        <div class="alt"><a href="#login" data-go="login">← Back to sign in</a></div>
+      </form>
+
+      <!-- SIGNED IN (stub to close the flow) -->
+      <div class="view view--done" data-view="done" hidden>
+        <div class="seal" aria-hidden="true">✦</div>
+        <p class="eyebrow">You're in</p>
+        <h2 class="heading" data-done-title>Welcome</h2>
+        <p class="lede" data-done-sub>Redirecting you to your portal…</p>
+        <button class="btn btn--ghost" type="button" data-go="login"><span>Sign out</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Taraku Enlightenment Club</span>
+    <span class="foot__dot">·</span>
+    <span>Est. MMXXVI</span>
+    <span class="foot__dot">·</span>
+    <span class="foot__tag">prototype</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
