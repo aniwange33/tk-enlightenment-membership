@@ -1,0 +1,8 @@
+/* Global resets/tokens live in luminary.css (the ported Luminary system).
+   This file only positions the React root. */
+#root {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
