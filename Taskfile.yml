@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Full build with verification
+    cmds:
+      - ./mvnw clean verify
+
+  test:
+    desc: Run all tests
+    cmds:
+      - ./mvnw test
+
+  run:
+    desc: Start the application
+    cmds:
+      - ./mvnw spring-boot:run

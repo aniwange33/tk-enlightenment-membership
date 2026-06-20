@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Console — Taraku Enlightenment Club</title>
+  <link rel="icon" href="assets/tk-logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@300;400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="member.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="app admin">
+  <div class="field" aria-hidden="true"><div class="halo halo--admin"></div><div class="grain"></div></div>
+
+  <header class="topbar">
+    <a class="topbar__brand" href="index.html" aria-label="Taraku home">
+      <img class="emblem emblem--sm" src="assets/tk-logo.jpg" alt="" width="34" height="34" />
+      <span class="topbar__mark">Taraku</span><span class="topbar__div"></span>
+      <span class="topbar__sec">Admin</span>
+    </a>
+    <div class="topbar__user">
+      <span class="who"><span class="who__name">Secretary</span><span class="who__no">officer@taraku.org</span></span>
+      <span class="avatar" aria-hidden="true">S</span>
+      <a class="btn btn--ghost btn--sm" href="index.html"><span>Sign out</span></a>
+    </div>
+  </header>
+
+  <div class="console">
+    <!-- ── sidebar ───────────────────────────────────────────────────────── -->
+    <aside class="side">
+      <nav class="nav">
+        <button class="nav__item is-active" data-nav="members"><span class="nav__ico">❖</span>Members</button>
+        <button class="nav__item" data-nav="announcements"><span class="nav__ico">✸</span>Announcements</button>
+      </nav>
+      <div class="side__foot">
+        <span class="side__stat" data-roster-count>—</span>
+        <span class="side__statlbl">on the roster</span>
+      </div>
+    </aside>
+
+    <!-- ── members ───────────────────────────────────────────────────────── -->
+    <main class="main" data-section="members">
+      <div class="main__head">
+        <div><p class="eyebrow">Roster</p><h1 class="main__title">Members</h1></div>
+        <button class="btn btn--sm" data-open-register><span>＋ Register member</span><i class="btn__spark"></i></button>
+      </div>
+
+      <div class="toolbar">
+        <label class="search">
+          <span class="search__ico" aria-hidden="true">⌕</span>
+          <input type="search" placeholder="Search name, email, or number…" data-search aria-label="Search members" />
+        </label>
+        <select class="select" data-filter aria-label="Filter by status">
+          <option value="">All statuses</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+          <option value="SUSPENDED">Suspended</option>
+          <option value="TERMINATED">Terminated</option>
+        </select>
+      </div>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th>Member</th><th>No.</th><th>Status</th><th data-year-head>Dues</th><th>Joined</th><th></th>
+          </tr></thead>
+          <tbody data-rows></tbody>
+        </table>
+        <p class="empty" data-empty hidden>No members match your search.</p>
+      </div>
+
+      <div class="pager">
+        <button class="btn btn--ghost btn--sm" data-prev disabled><span>← Prev</span></button>
+        <span class="pager__info" data-page-info>—</span>
+        <button class="btn btn--ghost btn--sm" data-next><span>Next →</span></button>
+      </div>
+    </main>
+
+    <!-- ── announcements ─────────────────────────────────────────────────── -->
+    <main class="main" data-section="announcements" hidden>
+      <div class="main__head">
+        <div><p class="eyebrow">Communications</p><h1 class="main__title">Send an announcement</h1></div>
+      </div>
+
+      <form class="compose" data-announce novalidate>
+        <div class="msg" data-msg hidden></div>
+        <label class="field-row">
+          <span class="label">Subject</span>
+          <input name="subject" placeholder="e.g. Annual General Meeting — 12 July" required />
+          <span class="err" data-err></span>
+        </label>
+        <label class="field-row">
+          <span class="label">Message</span>
+          <textarea name="body" rows="7" placeholder="Write your announcement…" required></textarea>
+          <span class="err" data-err></span>
+        </label>
+        <fieldset class="seg">
+          <legend class="label">Recipients</legend>
+          <label class="seg__opt"><input type="radio" name="group" value="ACTIVE_MEMBERS" checked />
+            <span>Active members <em data-count-active>—</em></span></label>
+          <label class="seg__opt"><input type="radio" name="group" value="ALL_MEMBERS" />
+            <span>All members <em data-count-all>—</em></span></label>
+        </fieldset>
+        <p class="note">“All members” excludes those who have left the club (terminated).</p>
+        <button class="btn" type="submit"><span>Send announcement</span><i class="btn__spark"></i></button>
+      </form>
+    </main>
+  </div>
+
+  <!-- ── member drawer ───────────────────────────────────────────────────── -->
+  <div class="scrim" data-scrim hidden></div>
+  <aside class="drawer" data-drawer hidden aria-label="Member detail">
+    <button class="drawer__close" data-close-drawer aria-label="Close">✕</button>
+    <div class="drawer__head">
+      <span class="badge" data-d-status>—</span>
+      <h2 class="drawer__name" data-d-name>—</h2>
+      <span class="drawer__no" data-mono data-d-number>—</span>
+    </div>
+    <dl class="drawer__facts">
+      <div><dt>Email</dt><dd data-d-email>—</dd></div>
+      <div><dt>Phone</dt><dd data-d-phone>—</dd></div>
+      <div><dt>Joined</dt><dd data-d-joined>—</dd></div>
+    </dl>
+
+    <div class="drawer__sec">
+      <h3 class="drawer__h3">Status</h3>
+      <div class="statusrow">
+        <select class="select" data-status-select></select>
+        <button class="btn btn--sm" data-apply-status><span>Update</span></button>
+      </div>
+      <p class="note" data-status-note hidden>Terminated is a terminal state and can't be changed.</p>
+    </div>
+
+    <div class="drawer__sec">
+      <h3 class="drawer__h3">Dues</h3>
+      <table class="dues"><tbody data-d-dues></tbody></table>
+    </div>
+  </aside>
+
+  <!-- ── register modal ──────────────────────────────────────────────────── -->
+  <div class="modal" data-modal hidden role="dialog" aria-modal="true" aria-label="Register member">
+    <div class="modal__backdrop" data-close-modal></div>
+    <form class="modal__card" data-register novalidate>
+      <button type="button" class="drawer__close" data-close-modal aria-label="Close">✕</button>
+      <p class="eyebrow">New enrolment</p>
+      <h2 class="heading">Register a member</h2>
+      <div class="msg" data-msg hidden></div>
+      <div class="modal__grid">
+        <label class="field-row"><span class="label">First name</span><input name="firstName" required /><span class="err" data-err></span></label>
+        <label class="field-row"><span class="label">Last name</span><input name="lastName" required /><span class="err" data-err></span></label>
+        <label class="field-row"><span class="label">Date of birth</span><input name="dateOfBirth" type="date" required /><span class="err" data-err></span></label>
+        <label class="field-row"><span class="label">Email</span><input name="email" type="email" required /><span class="err" data-err></span></label>
+        <label class="field-row"><span class="label">Phone</span><input name="phone" type="tel" /></label>
+        <label class="field-row"><span class="label">Address</span><input name="address" /></label>
+      </div>
+      <p class="note">A membership number is generated automatically; a welcome email with a temporary password is sent.</p>
+      <div class="modal__actions">
+        <button class="btn" type="submit"><span>Register member</span><i class="btn__spark"></i></button>
+        <button class="btn btn--ghost" type="button" data-close-modal><span>Cancel</span></button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" data-toast hidden></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
