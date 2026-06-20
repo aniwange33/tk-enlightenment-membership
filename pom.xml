@@ -26,6 +26,9 @@
 		<node.version>v22.22.3</node.version>
 		<!-- set -Dfrontend.skip=true to package without rebuilding the SPA -->
 		<frontend.skip>false</frontend.skip>
+		<!-- OpenTelemetry instrumentation BOM that aligns with the OTel 1.55.0 core
+		     managed by Spring Boot 4.0.6 (provides the logback appender version) -->
+		<otel-instrumentation.version>2.21.0-alpha</otel-instrumentation.version>
 	</properties>
 
 	<dependencies>
@@ -118,6 +121,32 @@
 			<version>${shedlock.version}</version>
 		</dependency>
 
+		<!-- Observability: Micrometer + OpenTelemetry (OTLP) -> Grafana -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-otel</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-otlp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-otlp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.modulith</groupId>
+			<artifactId>spring-modulith-observability</artifactId>
+		</dependency>
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -174,6 +203,13 @@
 				<groupId>org.springframework.modulith</groupId>
 				<artifactId>spring-modulith-bom</artifactId>
 				<version>${spring-modulith.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry.instrumentation</groupId>
+				<artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+				<version>${otel-instrumentation.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

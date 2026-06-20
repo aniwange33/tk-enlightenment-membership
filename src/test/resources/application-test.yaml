@@ -16,3 +16,15 @@ auth:
   admin:
     email: admin@taraku-enlightenment.org
     password: AdminTest!2026
+
+# No telemetry export during tests — keeps the suite fast and connection-noise-free.
+management:
+  tracing:
+    enabled: false
+  otlp:
+    metrics:
+      export:
+        enabled: false
+    logging:
+      export:
+        enabled: false

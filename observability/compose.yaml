@@ -1,0 +1,14 @@
+# Local observability backend for the membership app.
+#   docker compose -f observability/compose.yaml up -d
+# Then run the app (it exports OTLP to localhost:4318 by default) and open Grafana
+# at http://localhost:3000 (anonymous admin) to explore traces, metrics, and logs.
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: tec-otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    environment:
+      - GF_PATHS_DATA=/data/grafana

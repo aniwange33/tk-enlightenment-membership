@@ -53,3 +53,41 @@ spring:
           enabled: true
       completion-mode: update
       republish-outstanding-events-on-restart: true
+
+# Observability: Micrometer + OpenTelemetry, exported over OTLP to Grafana (otel-lgtm).
+# Point OTEL_OTLP_ENDPOINT at the collector; defaults to the local otel-lgtm container.
+management:
+  health:
+    # SMTP reachability shouldn't flap app health/readiness (and it's a mock in tests)
+    mail:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when-authorized
+  info:
+    git:
+      mode: full
+    env:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_OTLP_ENDPOINT:http://localhost:4318}/v1/traces
+    metrics:
+      export:
+        url: ${OTEL_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
+        step: 10s
+    logging:
+      endpoint: ${OTEL_OTLP_ENDPOINT:http://localhost:4318}/v1/logs
+  opentelemetry:
+    resource-attributes:
+      service.namespace: taraku
+      deployment.environment: ${DEPLOY_ENV:local}

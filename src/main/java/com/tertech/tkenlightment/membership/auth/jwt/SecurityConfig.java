@@ -49,6 +49,9 @@ class SecurityConfig {
                                 "/api/auth/reset-password")
                         .permitAll()
                         .requestMatchers(PUBLIC_GET).permitAll()
+                        // Actuator: health/info (+ probes) public; everything else admin-only.
+                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // The REST API is protected; everything else (the SPA shell, its
                         // assets, and client-side routes) is public — the SPA guards itself.
                         .requestMatchers("/api/**").authenticated()
