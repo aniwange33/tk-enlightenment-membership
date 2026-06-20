@@ -30,16 +30,23 @@ class MemberEventNotificationListener {
                 Membership Number: %s
                 Temporary Password: %s
 
-                Please log in and change your password on first login.
+                Sign in here to get started:
+                %s
+
+                You'll be asked to change your password on first login.
 
                 Regards,
                 Taraku Enlightenment Club
-                """.formatted(event.fullName(), event.membershipNumber(), event.tempPassword()));
+                """.formatted(
+                        event.fullName(),
+                        event.membershipNumber(),
+                        event.tempPassword(),
+                        properties.loginUrl()));
     }
 
     @ApplicationModuleListener
     void onPasswordResetRequested(PasswordResetRequestedEvent event) {
-        String resetLink = properties.resetLinkBaseUrl() + "?token=" + event.rawToken();
+        String resetLink = properties.resetUrl(event.rawToken());
         emailService.send(
                 event.email(),
                 "Reset your Taraku Enlightenment Club password",
