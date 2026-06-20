@@ -7,7 +7,8 @@ springdoc:
 
 notification:
   from: ${NOTIFICATION_FROM:noreply@taraku-enlightenment.org}
-  reset-link-base-url: ${NOTIFICATION_RESET_LINK_BASE_URL:http://localhost:8080/reset-password}
+  # Base URL of the deployed app; used to build login and password-reset links in emails
+  app-base-url: ${NOTIFICATION_APP_BASE_URL:http://localhost:8080}
 
 auth:
   jwt:

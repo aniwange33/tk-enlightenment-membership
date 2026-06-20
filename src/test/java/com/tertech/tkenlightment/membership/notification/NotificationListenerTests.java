@@ -32,7 +32,7 @@ class NotificationListenerTests {
     @BeforeEach
     void setUp() {
         memberListener = new MemberEventNotificationListener(
-                emailService, new NotificationProperties("noreply@taraku.test", "https://app.test/reset"));
+                emailService, new NotificationProperties("noreply@taraku.test", "https://app.test"));
         duesListener = new DuesEventNotificationListener(emailService);
         announcementListener = new AnnouncementEventListener(emailService);
     }
@@ -57,6 +57,17 @@ class NotificationListenerTests {
                 eq("jane@example.com"),
                 contains("Welcome"),
                 contains("Temp1234"));
+    }
+
+    @Test
+    void shouldIncludeLoginUrlInWelcomeEmail() {
+        memberListener.onAccountCreated(
+                new AccountCreatedEvent("jane@example.com", "Jane Doe", "TEC-2026-001", "Temp1234"));
+
+        verify(emailService).send(
+                eq("jane@example.com"),
+                contains("Welcome"),
+                contains("https://app.test/login"));
     }
 
     @Test
