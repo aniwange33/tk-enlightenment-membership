@@ -35,6 +35,17 @@ Generate some telemetry by clicking around the app, or:
 curl localhost:8080/actuator/health
 ```
 
+## Starter dashboard
+
+`dashboards/membership-overview.json` is a ready-made overview (HTTP rate + p95 latency, JVM heap,
+DB pool, the domain counters, and email outcomes). Import it once:
+
+1. Grafana → **Dashboards** → **New** → **Import**.
+2. **Upload** `observability/dashboards/membership-overview.json` (or paste its contents).
+3. When prompted, select the **Prometheus** data source → **Import**.
+
+It auto-refreshes every 30s; generate some traffic so the panels have data.
+
 ## Stop / tear down
 
 ```bash

@@ -1,0 +1,146 @@
+{
+  "title": "Taraku Membership — Overview",
+  "uid": "tec-membership-overview",
+  "tags": ["membership", "taraku"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Metrics source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Members registered",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "short" } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(members_registered_total)" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Dues paid",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(dues_paid_total)" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Announcements sent",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(announcements_sent_total)" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Email failures",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] }
+        }
+      },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(notification_email_sent_total{outcome=\"failure\"})" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP request rate (req/s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "requests", "expr": "sum(rate(http_server_request_duration_seconds_count[$__rate_interval]))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP latency p95 (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "p95", "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[$__rate_interval])) by (le))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Email send outcomes (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "line", "fillOpacity": 10, "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "{{outcome}}", "expr": "sum(rate(notification_email_sent_total[$__rate_interval])) by (outcome)" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Domain activity (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "registered", "expr": "sum(rate(members_registered_total[$__rate_interval]))" },
+        { "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "dues paid", "expr": "sum(rate(dues_paid_total[$__rate_interval]))" },
+        { "refId": "C", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "auto-inactivated", "expr": "sum(rate(members_auto_inactivated_total[$__rate_interval]))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM heap used (bytes)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "heap used", "expr": "sum(jvm_memory_used_bytes)" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "DB connection pool",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "active", "expr": "sum(hikaricp_connections_active)" },
+        { "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "legendFormat": "idle", "expr": "sum(hikaricp_connections_idle)" }
+      ]
+    }
+  ]
+}
