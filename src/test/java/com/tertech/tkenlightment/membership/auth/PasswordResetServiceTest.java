@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.tertech.tkenlightment.membership.auth.domain.events.PasswordResetRequestedEvent;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Clock;
@@ -56,7 +57,8 @@ class PasswordResetServiceTest {
                 tokenRepository,
                 passwordEncoder,
                 eventPublisher,
-                Clock.fixed(NOW, ZoneOffset.UTC));
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                new SimpleMeterRegistry());
     }
 
     private UserAccountEntity enabledAccount() {

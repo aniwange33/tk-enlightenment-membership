@@ -17,6 +17,7 @@ import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.DomainException;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -55,7 +56,8 @@ class DuesServiceTest {
 
     @BeforeEach
     void setUp() {
-        duesService = new DuesService(duesRepository, memberAPI, eventPublisher, duesChunkService, clock, CHUNK_SIZE);
+        duesService = new DuesService(
+                duesRepository, memberAPI, eventPublisher, duesChunkService, clock, CHUNK_SIZE, new SimpleMeterRegistry());
     }
 
     // --- createDuesRecord (delegation) ---

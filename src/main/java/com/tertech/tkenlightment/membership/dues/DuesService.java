@@ -7,6 +7,7 @@ import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.DomainException;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,6 +34,7 @@ class DuesService {
     private final DuesChunkService duesChunkService;
     private final Clock clock;
     private final int chunkSize;
+    private final MeterRegistry meterRegistry;
 
     DuesService(
             DuesRecordRepository duesRepository,
@@ -40,13 +42,15 @@ class DuesService {
             SpringEventPublisher eventPublisher,
             DuesChunkService duesChunkService,
             Clock clock,
-            @Value("${dues.batch.chunk-size:500}") int chunkSize) {
+            @Value("${dues.batch.chunk-size:500}") int chunkSize,
+            MeterRegistry meterRegistry) {
         this.duesRepository = duesRepository;
         this.memberAPI = memberAPI;
         this.eventPublisher = eventPublisher;
         this.duesChunkService = duesChunkService;
         this.clock = clock;
         this.chunkSize = chunkSize;
+        this.meterRegistry = meterRegistry;
     }
 
     void createDuesRecord(String memberId, int year) {
@@ -109,6 +113,7 @@ class DuesService {
         }
 
         eventPublisher.publish(new DuesPaidEvent(memberId, member.email(), member.firstName() + " " + member.lastName(), year));
+        meterRegistry.counter("dues.paid").increment();
 
         return record;
     }

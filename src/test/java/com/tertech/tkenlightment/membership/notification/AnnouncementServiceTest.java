@@ -11,13 +11,14 @@ import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
 import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.notification.rest.dtos.RecipientGroup;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,11 +31,15 @@ class AnnouncementServiceTest {
     @Mock
     SpringEventPublisher eventPublisher;
 
-    @InjectMocks
     AnnouncementService service;
 
     @Captor
     ArgumentCaptor<AnnouncementRequestedEvent> eventCaptor;
+
+    @BeforeEach
+    void setUp() {
+        service = new AnnouncementService(memberAPI, eventPublisher, new SimpleMeterRegistry());
+    }
 
     private static MemberResult memberWithEmail(String email) {
         return memberWithStatus(email, MemberStatus.ACTIVE);

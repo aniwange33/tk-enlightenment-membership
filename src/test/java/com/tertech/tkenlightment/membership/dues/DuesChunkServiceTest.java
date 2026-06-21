@@ -14,6 +14,7 @@ import com.tertech.tkenlightment.membership.member.MemberAPI;
 import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
 import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,7 @@ class DuesChunkServiceTest {
 
     @BeforeEach
     void setUp() {
-        chunkService = new DuesChunkService(duesRepository, memberAPI, eventPublisher);
+        chunkService = new DuesChunkService(duesRepository, memberAPI, eventPublisher, new SimpleMeterRegistry());
     }
 
     // --- createDuesRecordsForChunk ---

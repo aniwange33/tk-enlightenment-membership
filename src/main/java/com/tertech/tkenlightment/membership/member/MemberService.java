@@ -11,6 +11,7 @@ import com.tertech.tkenlightment.membership.member.domain.services.RegisterMembe
 import com.tertech.tkenlightment.membership.member.domain.services.UpdateMemberProfileCmd;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.MemberAlreadyExistsException;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,18 +29,21 @@ class MemberService {
     private final MemberMapper mapper;
     private final SpringEventPublisher eventPublisher;
     private final Clock clock;
+    private final MeterRegistry meterRegistry;
 
     MemberService(
             MemberRepository memberRepository,
             MembershipNumberSequenceRepository sequenceRepository,
             MemberMapper mapper,
             SpringEventPublisher eventPublisher,
-            Clock clock) {
+            Clock clock,
+            MeterRegistry meterRegistry) {
         this.memberRepository = memberRepository;
         this.sequenceRepository = sequenceRepository;
         this.mapper = mapper;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
+        this.meterRegistry = meterRegistry;
     }
 
     MemberResult register(RegisterMemberCmd cmd) {
@@ -67,6 +71,7 @@ class MemberService {
                 member.getMembershipNumber(),
                 member.getEmail(),
                 member.fullName()));
+        meterRegistry.counter("members.registered").increment();
 
         return mapper.toResult(member);
     }

@@ -3,6 +3,7 @@ package com.tertech.tkenlightment.membership.auth;
 import com.tertech.tkenlightment.membership.auth.domain.events.PasswordResetRequestedEvent;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
 import com.tertech.tkenlightment.membership.shared.domain.exceptions.ResourceNotFoundException;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -36,18 +37,21 @@ class PasswordResetService {
     private final SpringEventPublisher eventPublisher;
     private final SecureRandom secureRandom = new SecureRandom();
     private final Clock clock;
+    private final MeterRegistry meterRegistry;
 
     PasswordResetService(
             UserAccountRepository accountRepository,
             PasswordResetTokenRepository tokenRepository,
             PasswordEncoder passwordEncoder,
             SpringEventPublisher eventPublisher,
-            Clock clock) {
+            Clock clock,
+            MeterRegistry meterRegistry) {
         this.accountRepository = accountRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
+        this.meterRegistry = meterRegistry;
     }
 
     /**
@@ -74,6 +78,7 @@ class PasswordResetService {
                 PasswordResetTokenEntity.create(account.getId(), hash(rawToken), now.plus(TOKEN_TTL)));
 
         eventPublisher.publish(new PasswordResetRequestedEvent(account.getEmail(), rawToken));
+        meterRegistry.counter("password_reset.requested").increment();
     }
 
     /**
@@ -101,6 +106,7 @@ class PasswordResetService {
         token.markUsed(now);
         accountRepository.save(account);
         tokenRepository.save(token);
+        meterRegistry.counter("password_reset.completed").increment();
     }
 
     private String generateRawToken() {

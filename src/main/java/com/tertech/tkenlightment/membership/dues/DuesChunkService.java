@@ -6,6 +6,7 @@ import com.tertech.tkenlightment.membership.member.MemberAPI;
 import com.tertech.tkenlightment.membership.member.domain.models.MemberStatus;
 import com.tertech.tkenlightment.membership.member.domain.services.MemberResult;
 import com.tertech.tkenlightment.membership.shared.domain.events.SpringEventPublisher;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +28,17 @@ class DuesChunkService {
     private final DuesRecordRepository duesRepository;
     private final MemberAPI memberAPI;
     private final SpringEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
 
     DuesChunkService(
-            DuesRecordRepository duesRepository, MemberAPI memberAPI, SpringEventPublisher eventPublisher) {
+            DuesRecordRepository duesRepository,
+            MemberAPI memberAPI,
+            SpringEventPublisher eventPublisher,
+            MeterRegistry meterRegistry) {
         this.duesRepository = duesRepository;
         this.memberAPI = memberAPI;
         this.eventPublisher = eventPublisher;
+        this.meterRegistry = meterRegistry;
     }
 
     /** Idempotent: creates an unpaid record only if the member has none for the year. */
@@ -42,6 +48,7 @@ class DuesChunkService {
             return;
         }
         duesRepository.save(DuesRecordEntity.create(memberId, year));
+        meterRegistry.counter("dues.records_generated").increment();
     }
 
     void createDuesRecordsForChunk(List<String> memberIds, int year) {
@@ -57,6 +64,7 @@ class DuesChunkService {
                 if (member.status() == MemberStatus.ACTIVE) {
                     eventPublisher.publish(new DuesReminderEvent(
                             memberId, member.email(), member.firstName() + " " + member.lastName(), year));
+                    meterRegistry.counter("dues.reminders_sent").increment();
                 }
             } catch (Exception e) {
                 log.error("Failed to send dues reminder to member {} for year {}", memberId, year, e);
@@ -72,6 +80,7 @@ class DuesChunkService {
                     memberAPI.inactivateMember(memberId);
                     eventPublisher.publish(new MemberAutoInactivatedEvent(
                             memberId, member.email(), member.firstName() + " " + member.lastName(), year));
+                    meterRegistry.counter("members.auto_inactivated").increment();
                     log.info("Auto-inactivated member {} for unpaid dues year {}", memberId, year);
                 }
             } catch (Exception e) {
