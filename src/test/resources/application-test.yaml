@@ -25,6 +25,7 @@ management:
     metrics:
       export:
         enabled: false
+  opentelemetry:
     logging:
       export:
         enabled: false

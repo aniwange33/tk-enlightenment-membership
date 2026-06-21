@@ -121,33 +121,19 @@
 			<version>${shedlock.version}</version>
 		</dependency>
 
-		<!-- Observability: Micrometer + OpenTelemetry (OTLP) -> Grafana -->
+		<!-- Observability: OpenTelemetry (OTLP — traces, metrics, logs) -> Grafana.
+		     Spring Boot 4's OTel starter bundles the OTel API, micrometer-registry-otlp,
+		     micrometer-tracing-bridge-otel, and the OTel SDK autoconfig (the real tracer +
+		     span exporters — what the actuator starter alone doesn't provide). -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- Spring Boot 4 split observability autoconfig into modules; the actuator
-		     starter doesn't pull tracing or the OTel SDK/logging autoconfig. -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-micrometer-tracing</artifactId>
+			<artifactId>spring-boot-starter-opentelemetry</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-opentelemetry</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-tracing-bridge-otel</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-otlp</artifactId>
-		</dependency>
+		<!-- Logback OTel appender is NOT bundled by the starter; add it for log export. -->
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
